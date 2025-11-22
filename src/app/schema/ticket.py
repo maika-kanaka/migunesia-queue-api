@@ -19,6 +19,7 @@ class TicketCreateResponse(BaseModel):
     loket_name: str
     loket_code: str
     event_id: int
+    event_name: str
     number: int
 
 

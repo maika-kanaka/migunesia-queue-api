@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 
 from src.config.database import get_database
 
@@ -25,7 +26,9 @@ async def create_ticket(
     db: AsyncSession = Depends(get_database),
 ):
     result = await db.execute(
-        select(Loket).where(
+        select(Loket)
+        .options(selectinload(Loket.event))
+        .where(
             Loket.id == loket_id,
             Loket.event_id == event_id,
         )
@@ -56,6 +59,7 @@ async def create_ticket(
         loket_name=loket.name,
         loket_code=loket.code,
         event_id=event_id,
+        event_name=loket.event.name,
         number=ticket.number,
     )
 
