@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
@@ -33,7 +35,7 @@ async def create_loket(
     return loket
 
 
-@router.get("", response_model=list[LoketRead])
+@router.get("", response_model=List[LoketRead])
 async def list_lokets(
     event_id: int, db: AsyncSession = Depends(get_database)
 ):

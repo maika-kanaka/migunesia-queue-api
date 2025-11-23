@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -32,7 +34,7 @@ async def create_event(
     return ev
 
 
-@router.get("", response_model=list[EventRead])
+@router.get("", response_model=List[EventRead])
 async def list_events(db: AsyncSession = Depends(get_database)):
     result = await db.execute(select(Event))
     events = result.scalars().all()
@@ -109,7 +111,7 @@ async def delete_event(event_id: int, db: AsyncSession = Depends(get_database)):
     return
 
 
-@router.get("/{event_id}/state", response_model=list[LoketState])
+@router.get("/{event_id}/state", response_model=List[LoketState])
 async def event_state(event_id: int, db: AsyncSession = Depends(get_database)):
     result_event = await db.execute(
         select(Event).where(Event.id == event_id)
@@ -123,7 +125,7 @@ async def event_state(event_id: int, db: AsyncSession = Depends(get_database)):
     )
     lokets = result_lokets.scalars().all()
 
-    states: list[LoketState] = []
+    states: List[LoketState] = []
 
     for loket in lokets:
         result_count = await db.execute(
