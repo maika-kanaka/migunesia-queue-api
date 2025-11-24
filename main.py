@@ -20,6 +20,7 @@ from src.app.middleware.middleware import setup_cors_middleware, setup_custom_mi
 from src.app.api.events import router as events_router
 from src.app.api.lokets import router as lokets_router
 from src.app.api.tickets import router as tickets_router
+from src.app.api.sound_source import router as sound_router
 
 # Setup logging
 logging.basicConfig(
@@ -75,6 +76,7 @@ setup_custom_middleware(app)
 app.include_router(events_router, prefix="/api/v1")
 app.include_router(lokets_router, prefix="/api/v1")
 app.include_router(tickets_router, prefix="/api/v1")
+app.include_router(sound_router, prefix="/api/v1")
 
 
 @app.get("/")

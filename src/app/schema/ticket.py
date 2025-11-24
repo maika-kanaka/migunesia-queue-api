@@ -17,6 +17,7 @@ class TicketCreateResponse(BaseModel):
     ticket_id: int
     loket_id: int
     loket_name: str
+    loket_description: Optional[str] = None
     loket_code: str
     event_id: int
     event_name: str

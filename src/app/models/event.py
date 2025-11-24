@@ -11,7 +11,6 @@ class Event(Base):
     code = Column(String(50), unique=True, index=True, nullable=False)
     is_active = Column(Boolean, default=True)
 
-    lokets = relationship("Loket", back_populates="event", cascade="all, delete-orphan")
-    tickets = relationship(
-        "Ticket", back_populates="event", cascade="all, delete-orphan"
-    )
+    lokets = relationship("Loket", back_populates="event")
+    tickets = relationship("Ticket", back_populates="event")
+    sound_sources = relationship("SoundSource", back_populates="event")

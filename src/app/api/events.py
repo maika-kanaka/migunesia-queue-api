@@ -141,6 +141,7 @@ async def event_state(event_id: int, db: AsyncSession = Depends(get_database)):
                 loket_id=loket.id,
                 loket_code=loket.code,
                 loket_name=loket.name,
+                loket_description=loket.description,
                 current_number=loket.current_number or 0,
                 queue_length=waiting_count,
                 last_ticket_number=loket.last_ticket_number or 0,

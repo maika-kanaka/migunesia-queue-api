@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -19,7 +19,7 @@ class Loket(Base):
 
     last_repeat_at = Column(DateTime, nullable=True)
 
+    description = Column(Text, nullable=True)
+
     event = relationship("Event", back_populates="lokets")
-    tickets = relationship(
-        "Ticket", back_populates="loket", cascade="all, delete-orphan"
-    )
+    tickets = relationship("Ticket", back_populates="loket")

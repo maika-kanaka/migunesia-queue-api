@@ -27,6 +27,7 @@ async def create_loket(
     loket = Loket(
         name=payload.name,
         code=payload.code,
+        description=payload.description,
         event_id=event_id,
     )
     db.add(loket)
@@ -92,6 +93,8 @@ async def update_loket(
         loket.name = payload.name
     if payload.code is not None:
         loket.code = payload.code
+    if payload.description is not None:
+        loket.description = payload.description
 
     db.add(loket)
     await db.commit()
