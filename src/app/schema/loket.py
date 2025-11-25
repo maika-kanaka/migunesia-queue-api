@@ -37,6 +37,7 @@ class LoketState(BaseModel):
     queue_length: int
     last_ticket_number: int
     last_repeat_at: Optional[datetime] = None
+    hold_numbers: List[int] = []
 
 
 class LoketInfo(BaseModel):

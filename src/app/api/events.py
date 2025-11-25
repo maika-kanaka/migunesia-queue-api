@@ -136,6 +136,17 @@ async def event_state(event_id: int, db: AsyncSession = Depends(get_database)):
         )
         waiting_count = result_count.scalar_one() or 0
 
+        # ambil nomor tiket yang statusnya HOLD
+        result_hold = await db.execute(
+            select(Ticket.number)
+            .where(
+                Ticket.loket_id == loket.id,
+                Ticket.status == "hold",
+            )
+            .order_by(Ticket.number)
+        )
+        hold_numbers = [row[0] for row in result_hold.all()]
+
         states.append(
             LoketState(
                 loket_id=loket.id,
@@ -146,6 +157,7 @@ async def event_state(event_id: int, db: AsyncSession = Depends(get_database)):
                 queue_length=waiting_count,
                 last_ticket_number=loket.last_ticket_number or 0,
                 last_repeat_at=loket.last_repeat_at,
+                hold_numbers=hold_numbers,
             )
         )
 
