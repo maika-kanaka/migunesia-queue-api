@@ -13,7 +13,7 @@ router = APIRouter(tags=["sound"])
 @router.get("/events/{event_id}/sound-config", response_model=SoundSourceConfig)
 async def get_sound_config(
     event_id: int,
-    role: str = Query(..., description="Halaman role, misal: multi_display, loket_display, loket_display_led, loket_admin"),
+    role: str = Query(..., description="Halaman role, misal: multi_display, multi_display_led, loket_display, loket_display_led, loket_admin"),
     db: AsyncSession = Depends(get_database),
 ):
     # pastikan event ada
@@ -63,6 +63,7 @@ async def update_sound_config(
     # mapping role -> enabled dari body
     role_map = {
       "multi_display": body.multi_display,
+      "multi_display_led": body.multi_display_led,
       "loket_display": body.loket_display,
       "loket_display_led": body.loket_display_led,
       "loket_admin": body.loket_admin,
@@ -92,6 +93,7 @@ async def update_sound_config(
     return SoundConfigAll(
         event_id=event_id,
         multi_display=body.multi_display,
+        multi_display_led=body.multi_display_led,
         loket_display=body.loket_display,
         loket_display_led=body.loket_display_led,
         loket_admin=body.loket_admin,

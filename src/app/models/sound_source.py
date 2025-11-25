@@ -12,7 +12,7 @@ class SoundSource(Base):
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
 
     # role halaman yang boleh jadi sumber suara
-    # contoh: "multi_display", "loket_display", "loket_display_led", "loket_admin"
+    # contoh: "multi_display", "multi_display_led", "loket_display", "loket_display_led", "loket_admin"
     role = Column(String(50), nullable=False)
 
     # aktif / tidak
