@@ -5,6 +5,7 @@ from sqlalchemy import select
 from typing import List, Optional
 import csv
 import io
+import zipfile
 from datetime import datetime
 
 from src.config.database import get_database
@@ -216,3 +217,109 @@ async def export_tickets_by_loket_csv(
     csv_str = _rows_to_csv(headers, rows)
     filename = f"loket-{loket_id}-tickets-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}.csv"
     return _csv_response(filename, csv_str)
+
+
+# ============================================================
+# 5) EXPORT ALL (EVENT + LOKETS + TICKETS) AS ZIP
+# ============================================================
+
+@router.get("/events/{event_id}/export-all")
+async def export_event_all_zip(
+    event_id: int,
+    db: AsyncSession = Depends(get_database),
+):
+    """
+    Download 1 file ZIP berisi:
+    - event-{event_id}.csv
+    - event-{event_id}-lokets.csv
+    - event-{event_id}-tickets.csv
+    """
+    # 1. Ambil event
+    result_event = await db.execute(select(Event).where(Event.id == event_id))
+    event = result_event.scalar_one_or_none()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    # 2. EVENT CSV (1 row)
+    event_headers = ["id", "name", "code", "is_active"]
+    event_rows = [[
+        str(event.id),
+        event.name,
+        event.code,
+        "1" if event.is_active else "0",
+    ]]
+    event_csv = _rows_to_csv(event_headers, event_rows)
+
+    # 3. LOKETS CSV
+    result_loket = await db.execute(select(Loket).where(Loket.event_id == event_id))
+    lokets: List[Loket] = result_loket.scalars().all()
+
+    loket_headers = [
+        "id",
+        "event_id",
+        "name",
+        "code",
+        "current_number",
+        "last_ticket_number",
+        "last_repeat_at",
+        "description",
+    ]
+    loket_rows = []
+    for l in lokets:
+        loket_rows.append([
+            str(l.id),
+            str(l.event_id),
+            l.name,
+            l.code,
+            str(l.current_number),
+            str(l.last_ticket_number),
+            l.last_repeat_at.isoformat() if l.last_repeat_at else "",
+            (l.description or "").replace("\n", " "),
+        ])
+    loket_csv = _rows_to_csv(loket_headers, loket_rows)
+
+    # 4. TICKETS CSV (semua tiket di event ini)
+    result_ticket = await db.execute(select(Ticket).where(Ticket.event_id == event_id))
+    tickets: List[Ticket] = result_ticket.scalars().all()
+
+    ticket_headers = [
+        "id",
+        "event_id",
+        "loket_id",
+        "number",
+        "status",
+        "created_at",
+        "called_at",
+    ]
+    ticket_rows = []
+    for t in tickets:
+        ticket_rows.append([
+            str(t.id),
+            str(t.event_id),
+            str(t.loket_id),
+            str(t.number),
+            t.status,
+            t.created_at.isoformat() if t.created_at else "",
+            t.called_at.isoformat() if t.called_at else "",
+        ])
+    ticket_csv = _rows_to_csv(ticket_headers, ticket_rows)
+
+    # 5. Buat ZIP in-memory
+    buffer = io.BytesIO()
+    timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+    zip_filename = f"event-{event_id}-export-{timestamp}.zip"
+
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(f"event-{event_id}.csv", event_csv)
+        zf.writestr(f"event-{event_id}-lokets.csv", loket_csv)
+        zf.writestr(f"event-{event_id}-tickets.csv", ticket_csv)
+
+    buffer.seek(0)
+
+    return StreamingResponse(
+        buffer,
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f'attachment; filename="{zip_filename}"'
+        },
+    )

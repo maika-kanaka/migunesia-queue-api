@@ -78,6 +78,7 @@ app.include_router(events_router, prefix="/api/v1")
 app.include_router(lokets_router, prefix="/api/v1")
 app.include_router(tickets_router, prefix="/api/v1")
 app.include_router(sound_router, prefix="/api/v1")
+app.include_router(export_router, prefix="/api/v1")
 
 
 @app.get("/")
@@ -107,7 +108,6 @@ async def health_check():
 # Exception handlers
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    request.state.log.warning(f"Validation error: {exc}")
     return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 
