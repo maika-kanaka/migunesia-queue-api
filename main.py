@@ -21,6 +21,7 @@ from src.app.api.events import router as events_router
 from src.app.api.lokets import router as lokets_router
 from src.app.api.tickets import router as tickets_router
 from src.app.api.sound_source import router as sound_router
+from src.app.api.export import router as export_router
 
 # Setup logging
 logging.basicConfig(
